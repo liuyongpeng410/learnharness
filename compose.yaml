@@ -1,0 +1,32 @@
+# Loopback-only LearnHarness for Docker Desktop (Linux/amd64).
+# No privileged mode, no Docker socket, and no host directory mounts.
+# The named volume keeps learning data and the empty auth file.
+
+name: learnharness
+
+services:
+  learnharness:
+    platform: linux/amd64
+    image: learnharness:0.7.0
+    container_name: learnharness
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: node:26-bookworm-slim@sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      LH_DATA_DIR: /var/lib/learnharness/data
+      LH_AUTH_FILE: /var/lib/learnharness/auth.json
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - learnharness-data:/var/lib/learnharness
+    restart: unless-stopped
+    init: true
+
+volumes:
+  learnharness-data:
+    name: learnharness-data
